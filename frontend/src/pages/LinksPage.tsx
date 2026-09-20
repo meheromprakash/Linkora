@@ -91,8 +91,28 @@ export const LinksPage: React.FC = () => {
   const createMutation = useMutation({
     mutationFn: (data: { originalUrl: string; customSlug?: string; title?: string }) =>
       api.post('/links', data),
-    onSuccess: () => {
-      toast('Short link created successfully!', 'success');
+    onSuccess: (res: any) => {
+      const createdLink = res?.data || res;
+      const shortCode = createdLink?.shortCode;
+
+      if (shortCode) {
+        const fullUrl = `${window.location.origin}/r/${shortCode}`;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard
+            .writeText(fullUrl)
+            .then(() => {
+              toast('✓ Short link copied to clipboard', 'success');
+            })
+            .catch(() => {
+              toast('✓ Short link created (Failed to auto-copy to clipboard)', 'info');
+            });
+        } else {
+          toast('✓ Short link created (Clipboard access unavailable)', 'info');
+        }
+      } else {
+        toast('✓ Short link created successfully!', 'success');
+      }
+
       setIsCreateOpen(false);
       setNewUrl('');
       setNewCustomSlug('');
@@ -131,10 +151,20 @@ export const LinksPage: React.FC = () => {
 
   const handleCopy = (id: string, shortCode: string) => {
     const fullUrl = `${window.location.origin}/r/${shortCode}`;
-    navigator.clipboard.writeText(fullUrl);
-    setCopiedId(id);
-    toast('Copied short URL to clipboard!', 'success');
-    setTimeout(() => setCopiedId(null), 1500);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(fullUrl)
+        .then(() => {
+          setCopiedId(id);
+          toast('Copied short URL to clipboard!', 'success');
+          setTimeout(() => setCopiedId(null), 1500);
+        })
+        .catch(() => {
+          toast('Failed to copy to clipboard', 'error');
+        });
+    } else {
+      toast('Clipboard access unavailable', 'error');
+    }
   };
 
   const getFaviconUrl = (originalUrl: string) => {
