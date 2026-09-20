@@ -4,6 +4,11 @@
   command = "npm run build"
 
 [[redirects]]
+  from = "/r/*"
+  to = "https://linkora-backend-av48.onrender.com/r/:splat"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
