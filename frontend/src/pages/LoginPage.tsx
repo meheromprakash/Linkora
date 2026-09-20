@@ -96,6 +96,11 @@ export const LoginPage: React.FC = () => {
           </Button>
         </form>
 
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 bg-slate-50/80 border border-slate-200/60 rounded-lg py-2 px-3 text-center">
+          <span>⏱</span>
+          <span>Backend may take a few seconds to wake up after inactivity.</span>
+        </div>
+
         <div className="text-center text-xs text-slate-500 pt-3 border-t border-slate-100">
           Don't have an account yet?{' '}
           <Link to="/register" className="text-brand-600 font-semibold hover:text-brand-700 hover:underline">
