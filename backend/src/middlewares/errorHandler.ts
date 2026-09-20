@@ -28,8 +28,8 @@ export const errorHandler = (
 
   if (err.code === 11000) {
     statusCode = 409;
-    const field = Object.keys(err.keyValue)[0];
-    message = `Duplicate value entered for field '${field}'`;
+    const field = err.keyValue ? Object.keys(err.keyValue)[0] : 'field';
+    message = field === 'email' ? 'User with this email already exists' : `Duplicate value entered for field '${field}'`;
   }
 
   res.status(statusCode).json({

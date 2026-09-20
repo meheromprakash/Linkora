@@ -37,6 +37,7 @@ export const RegisterPage: React.FC = () => {
   });
 
   const onSubmit = async (values: RegisterFormValues) => {
+    if (isLoading) return;
     setIsLoading(true);
     try {
       const res: any = await api.post('/auth/register', values);
