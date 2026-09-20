@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -16,6 +16,65 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+const SingleToast: React.FC<{
+  t: ToastItem;
+  onClose: (id: string) => void;
+}> = ({ t, onClose }) => {
+  const [progress, setProgress] = useState(100);
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const duration = 4000;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
+      setProgress(remaining);
+      if (remaining === 0) {
+        clearInterval(interval);
+      }
+    }, 40);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      className={clsx(
+        'relative pointer-events-auto flex items-center justify-between gap-3 p-4 rounded-card border bg-white shadow-modal transition-all duration-300 animate-slide-in overflow-hidden',
+        t.type === 'success' && 'border-emerald-200 text-slate-800',
+        t.type === 'error' && 'border-red-200 text-slate-800',
+        t.type === 'info' && 'border-slate-200 text-slate-800'
+      )}
+    >
+      <div className="flex items-center gap-3">
+        {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
+        {t.type === 'error' && <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />}
+        {t.type === 'info' && <Info className="w-5 h-5 text-sky-600 shrink-0" />}
+        <span className="text-sm font-medium text-slate-900">{t.message}</span>
+      </div>
+      <button
+        onClick={() => onClose(t.id)}
+        className="text-slate-400 hover:text-slate-600 transition rounded p-0.5"
+        aria-label="Dismiss notification"
+      >
+        <X className="w-4 h-4" />
+      </button>
+
+      {/* Progress Bar */}
+      <div
+        className={clsx(
+          'absolute bottom-0 left-0 h-0.5 transition-all duration-75 ease-linear',
+          t.type === 'success' && 'bg-emerald-600',
+          t.type === 'error' && 'bg-red-600',
+          t.type === 'info' && 'bg-sky-600'
+        )}
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+};
+
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
@@ -28,37 +87,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, 4000);
   }, []);
 
-  const removeToast = (id: string) => {
+  const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  }, []);
 
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
+      <div className="fixed top-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
         {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={clsx(
-              'pointer-events-auto flex items-center justify-between gap-3 p-4 rounded-xl border shadow-2xl backdrop-blur-md transition-all duration-300 animate-bounce-short',
-              t.type === 'success' && 'bg-slate-900/95 border-brand-500/50 text-brand-300',
-              t.type === 'error' && 'bg-slate-900/95 border-rose-500/50 text-rose-300',
-              t.type === 'info' && 'bg-slate-900/95 border-cyan-500/50 text-cyan-300'
-            )}
-          >
-            <div className="flex items-center gap-3">
-              {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-brand-neon shrink-0" />}
-              {t.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />}
-              {t.type === 'info' && <Info className="w-5 h-5 text-cyan-400 shrink-0" />}
-              <span className="text-sm font-medium text-slate-100">{t.message}</span>
-            </div>
-            <button
-              onClick={() => removeToast(t.id)}
-              className="text-slate-400 hover:text-white transition"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+          <SingleToast key={t.id} t={t} onClose={removeToast} />
         ))}
       </div>
     </ToastContext.Provider>
@@ -72,3 +110,4 @@ export const useToast = () => {
   }
   return context;
 };
+

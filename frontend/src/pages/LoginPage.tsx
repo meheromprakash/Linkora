@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { api, setAccessToken } from '../lib/api';
+import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import { Button } from '../components/ui/Button';
@@ -47,15 +47,15 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 border-slate-800 space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-8 bg-white border border-slate-200/90 shadow-modal space-y-6">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src="/logo.svg" alt="Linkora" className="w-10 h-10" />
-            <span className="text-2xl font-black text-white">Linkora</span>
+            <img src="/logo.svg" alt="Linkora" className="w-9 h-9" />
+            <span className="text-2xl font-bold text-slate-900 tracking-tight">Linkora</span>
           </Link>
-          <h2 className="text-xl font-bold text-slate-100">Welcome Back</h2>
-          <p className="text-xs text-slate-400">
+          <h2 className="text-xl font-semibold text-slate-900">Welcome Back</h2>
+          <p className="text-xs text-slate-500">
             Sign in to manage your short links and analytics dashboard
           </p>
         </div>
@@ -65,7 +65,7 @@ export const LoginPage: React.FC = () => {
             label="Email Address"
             type="email"
             placeholder="you@example.com"
-            leftIcon={<Mail className="w-4 h-4" />}
+            leftIcon={<Mail className="w-4 h-4 text-slate-400" />}
             error={errors.email?.message}
             {...register('email')}
           />
@@ -74,13 +74,13 @@ export const LoginPage: React.FC = () => {
             label="Password"
             type="password"
             placeholder="••••••••"
-            leftIcon={<Lock className="w-4 h-4" />}
+            leftIcon={<Lock className="w-4 h-4 text-slate-400" />}
             error={errors.password?.message}
             {...register('password')}
           />
 
           <div className="flex items-center justify-end text-xs">
-            <Link to="/forgot-password" className="text-brand-neon hover:underline">
+            <Link to="/forgot-password" className="text-brand-600 font-semibold hover:text-brand-700 hover:underline">
               Forgot password?
             </Link>
           </div>
@@ -96,9 +96,9 @@ export const LoginPage: React.FC = () => {
           </Button>
         </form>
 
-        <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
+        <div className="text-center text-xs text-slate-500 pt-3 border-t border-slate-100">
           Don't have an account yet?{' '}
-          <Link to="/register" className="text-brand-neon font-semibold hover:underline">
+          <Link to="/register" className="text-brand-600 font-semibold hover:text-brand-700 hover:underline">
             Create account
           </Link>
         </div>
@@ -106,3 +106,4 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+

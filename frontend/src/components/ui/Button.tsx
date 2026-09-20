@@ -25,25 +25,25 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#090d16] disabled:opacity-50 disabled:cursor-not-allowed select-none';
+      'inline-flex items-center justify-center font-medium rounded-btn transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/30 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.97]';
 
     const variants = {
       primary:
-        'bg-brand-neon text-slate-950 hover:bg-[#32c96c] focus:ring-brand-neon shadow-lg shadow-brand-neon/20 active:scale-[0.98]',
+        'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow focus-visible:ring-brand-600',
       secondary:
-        'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700/60 focus:ring-slate-500',
+        'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200/80 focus-visible:ring-slate-400',
       outline:
-        'border border-slate-700 text-slate-200 hover:bg-slate-800/60 hover:text-white hover:border-slate-500 focus:ring-slate-500',
+        'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus-visible:ring-slate-400 shadow-sm',
       danger:
-        'bg-rose-600 text-white hover:bg-rose-500 focus:ring-rose-500 shadow-lg shadow-rose-600/20',
+        'bg-red-600 text-white hover:bg-red-700 shadow-sm focus-visible:ring-red-500',
       ghost:
-        'text-slate-300 hover:bg-slate-800/60 hover:text-white focus:ring-slate-500',
+        'text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-slate-400',
     };
 
     const sizes = {
-      sm: 'text-xs px-3 py-1.5 gap-1.5',
-      md: 'text-sm px-4 py-2 gap-2',
-      lg: 'text-base px-5 py-2.5 gap-2.5',
+      sm: 'text-xs px-3 py-1.5 gap-1.5 h-8',
+      md: 'text-sm px-4 py-2 gap-2 h-10',
+      lg: 'text-base px-5 py-2.5 gap-2.5 h-11',
     };
 
     return (
@@ -55,14 +55,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
         ) : (
           icon && <span className="shrink-0">{icon}</span>
         )}
-        <span>{children}</span>
+        {children && <span>{children}</span>}
       </button>
     );
   }
 );
 
 Button.displayName = 'Button';
+

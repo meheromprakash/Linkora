@@ -4,10 +4,12 @@ import { api } from '../lib/api';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { AnalyticsData } from '../types';
 import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { PageHeader } from '../components/ui/PageHeader';
+import { StatCard } from '../components/ui/StatCard';
+import { SegmentedControl } from '../components/ui/SegmentedControl';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton } from '../components/ui/Skeleton';
 import {
-  AreaChart,
-  Area,
   BarChart,
   Bar,
   PieChart,
@@ -19,181 +21,286 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import { BarChart3, Calendar, Smartphone, Globe, Shield } from 'lucide-react';
+import { BarChart3, MousePointerClick, Globe, Smartphone, Info } from 'lucide-react';
 
 const DEVICE_COLORS: Record<string, string> = {
-  desktop: '#40E07B',
-  mobile: '#38bdf8',
-  tablet: '#a855f7',
-  bot: '#f43f5e',
-  unknown: '#94a3b8',
+  desktop: '#16A34A',
+  mobile: '#0284C7',
+  tablet: '#8B5CF6',
+  bot: '#F43F5E',
+  unknown: '#64748B',
 };
 
 export const AnalyticsPage: React.FC = () => {
-  const [days, setDays] = useState(7);
+  const [days, setDays] = useState<'7' | '30'>('7');
+
+  const daysNum = parseInt(days, 10);
 
   const { data: response, isLoading } = useQuery<{ data: AnalyticsData }>({
-    queryKey: ['analytics', days],
-    queryFn: () => api.get(`/analytics/details?days=${days}`),
+    queryKey: ['analytics', daysNum],
+    queryFn: () => api.get(`/analytics/details?days=${daysNum}`),
   });
 
   const analytics = response?.data;
+  const clicksOverTime = analytics?.clicksOverTime || [];
+  const referrers = analytics?.referrers || [];
+  const devices = analytics?.devices || [];
+
+  // Compute summary values from existing response data
+  const totalClicksInRange = clicksOverTime.reduce((sum, item) => sum + item.clicks, 0);
+
+  const sortedReferrers = [...referrers].sort((a, b) => b.count - a.count);
+  const topReferrer = sortedReferrers.length > 0 ? sortedReferrers[0].referrer : 'None yet';
+
+  const sortedDevices = [...devices].sort((a, b) => b.count - a.count);
+  const topDevice =
+    sortedDevices.length > 0
+      ? sortedDevices[0].device.charAt(0).toUpperCase() + sortedDevices[0].device.slice(1)
+      : 'None yet';
+
+  // Format date helper (e.g. "Sep 14")
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const formattedClicksOverTime = clicksOverTime.map((item) => ({
+    ...item,
+    formattedDate: formatDate(item.date),
+  }));
+
+  // Donut chart calculations
+  const totalDeviceClicks = devices.reduce((sum, d) => sum + d.count, 0);
 
   return (
     <DashboardLayout>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
-        <div>
-          <h1 className="text-2xl font-black text-slate-100 tracking-tight">Click Telemetry Analytics</h1>
-          <p className="text-xs text-slate-400">
-            Real-time insights across time-series clicks, referral sources, and visitor device distribution.
-          </p>
+      <div className="flex flex-col gap-6">
+        {/* Header with SegmentedControl */}
+        <PageHeader
+          title="Click Telemetry Analytics"
+          subtitle="Real-time insights across time-series clicks, referral sources, and visitor device distribution."
+          actions={
+            <SegmentedControl
+              options={[
+                { label: 'Last 7 Days', value: '7' },
+                { label: 'Last 30 Days', value: '30' },
+              ]}
+              value={days}
+              onChange={(val) => setDays(val)}
+            />
+          }
+        />
+
+        {/* Top 3 Summary Stat Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i} className="h-28 p-4 flex flex-col justify-between">
+                <Skeleton className="w-28 h-4" />
+                <Skeleton className="w-16 h-7 mt-2" />
+              </Card>
+            ))
+          ) : (
+            <>
+              <StatCard
+                label="Total Clicks in Range"
+                value={totalClicksInRange}
+                icon={<MousePointerClick className="w-4 h-4 text-slate-700" />}
+              />
+              <StatCard
+                label="Top Referrer"
+                value={topReferrer}
+                isNumericValue={false}
+                icon={<Globe className="w-4 h-4 text-slate-700" />}
+              />
+              <StatCard
+                label="Top Device"
+                value={topDevice}
+                isNumericValue={false}
+                icon={<Smartphone className="w-4 h-4 text-slate-700" />}
+              />
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant={days === 7 ? 'primary' : 'outline'}
-            size="sm"
-            onClick={() => setDays(7)}
-          >
-            Last 7 Days
-          </Button>
-          <Button
-            variant={days === 30 ? 'primary' : 'outline'}
-            size="sm"
-            onClick={() => setDays(30)}
-          >
-            Last 30 Days
-          </Button>
-        </div>
-      </div>
 
-      {isLoading ? (
-        <div className="text-center py-20 text-slate-400 text-sm">Loading telemetry charts...</div>
-      ) : (
-        <div className="space-y-6">
-          {/* Clicks Over Time (Area Chart) */}
-          <Card className="p-6 space-y-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-brand-neon" />
-              <h2 className="text-lg font-bold text-slate-100">Clicks Over Time</h2>
-            </div>
-            <div className="h-72 w-full pt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={analytics?.clicksOverTime || []}>
-                  <defs>
-                    <linearGradient id="clickGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#40E07B" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#40E07B" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="date" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0f172a',
-                      borderColor: '#1e293b',
-                      borderRadius: '0.75rem',
-                      color: '#fff',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="clicks"
-                    stroke="#40E07B"
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#clickGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          {/* Grid: Top Referrers & Device Distribution */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Top Referrers (Bar Chart) */}
-            <Card className="p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-cyan-400" />
-                <h2 className="text-lg font-bold text-slate-100">Top Referrer Sources</h2>
-              </div>
-              {analytics?.referrers && analytics.referrers.length > 0 ? (
-                <div className="h-64 w-full pt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analytics.referrers} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                      <XAxis type="number" stroke="#64748b" fontSize={12} />
-                      <YAxis
-                        type="category"
-                        dataKey="referrer"
-                        stroke="#94a3b8"
-                        fontSize={12}
-                        width={100}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#0f172a',
-                          borderColor: '#1e293b',
-                          borderRadius: '0.75rem',
-                          color: '#fff',
-                        }}
-                      />
-                      <Bar dataKey="count" fill="#38bdf8" radius={[0, 6, 6, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-xs text-slate-500">No referrer data logged yet.</div>
-              )}
-            </Card>
-
-            {/* Device Distribution (Pie Chart) */}
-            <Card className="p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <Smartphone className="w-5 h-5 text-purple-400" />
-                <h2 className="text-lg font-bold text-slate-100">Device Breakdown</h2>
-              </div>
-              {analytics?.devices && analytics.devices.length > 0 ? (
-                <div className="h-64 w-full flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={analytics.devices}
-                        dataKey="count"
-                        nameKey="device"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        innerRadius={45}
-                        paddingAngle={4}
-                        label={({ device, count }) => `${device}: ${count}`}
-                      >
-                        {analytics.devices.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={DEVICE_COLORS[entry.device] || '#94a3b8'}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#0f172a',
-                          borderColor: '#1e293b',
-                          borderRadius: '0.75rem',
-                          color: '#fff',
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-xs text-slate-500">No device telemetry logged yet.</div>
-              )}
-            </Card>
+        {/* Low data hint if under 5 total clicks */}
+        {!isLoading && totalClicksInRange > 0 && totalClicksInRange < 5 && (
+          <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium animate-fade-in-up">
+            <Info className="w-4 h-4 text-[#16A34A] shrink-0" />
+            <span>Data gets more meaningful as clicks come in. Share your short links to collect richer insights!</span>
           </div>
-        </div>
-      )}
+        )}
+
+        {isLoading ? (
+          <Card className="p-8 text-center space-y-3">
+            <Skeleton className="w-full h-64" />
+          </Card>
+        ) : totalClicksInRange === 0 ? (
+          <EmptyState
+            icon={<BarChart3 />}
+            title="No telemetry data recorded yet"
+            description={`No clicks logged in the last ${daysNum} days. Once visitors click your short links, detailed charts will appear here.`}
+          />
+        ) : (
+          <div className="flex flex-col gap-6">
+            {/* Clicks Over Time (Bar Chart) */}
+            <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-slate-900">Clicks Over Time</h2>
+                <span className="text-xs text-slate-500 font-medium">Clicks per day</span>
+              </div>
+              <div className="h-72 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={formattedClicksOverTime} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                    <XAxis dataKey="formattedDate" stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis
+                      stroke="#94A3B8"
+                      fontSize={12}
+                      allowDecimals={false}
+                      domain={[0, (dataMax: number) => Math.max(4, Math.ceil(dataMax))]}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      cursor={{ fill: '#F1F5F9' }}
+                      contentStyle={{
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#E5E7EB',
+                        borderRadius: '0.75rem',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                        color: '#0F172A',
+                        fontSize: '13px',
+                      }}
+                    />
+                    <Bar dataKey="clicks" fill="#16A34A" radius={[6, 6, 0, 0]} maxBarSize={36} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+
+            {/* Grid: Top Referrers & Device Breakdown */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Top Referrer Sources (Bar Chart) */}
+              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+                <h2 className="text-base font-semibold text-slate-900">Top Referrer Sources</h2>
+                {referrers.length > 0 ? (
+                  <div className="h-64 w-full pt-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={referrers} layout="vertical" margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                        <XAxis type="number" stroke="#94A3B8" fontSize={12} allowDecimals={false} tickLine={false} axisLine={false} />
+                        <YAxis
+                          type="category"
+                          dataKey="referrer"
+                          stroke="#475569"
+                          fontSize={12}
+                          width={90}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip
+                          cursor={{ fill: '#F1F5F9' }}
+                          contentStyle={{
+                            backgroundColor: '#FFFFFF',
+                            borderColor: '#E5E7EB',
+                            borderRadius: '0.5rem',
+                            color: '#0F172A',
+                            fontSize: '12px',
+                          }}
+                        />
+                        <Bar dataKey="count" radius={[0, 6, 6, 0]} maxBarSize={24}>
+                          {referrers.map((_, index) => (
+                            <Cell
+                              key={`ref-cell-${index}`}
+                              fill={index === 0 ? '#16A34A' : '#86EFAC'}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="text-center py-16 text-xs text-slate-500">No referrer data logged yet.</div>
+                )}
+              </Card>
+
+              {/* Device Breakdown (Thinner Donut Chart with center text & legend) */}
+              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+                <h2 className="text-base font-semibold text-slate-900">Device Breakdown</h2>
+                {devices.length > 0 ? (
+                  <div className="flex flex-col items-center justify-center space-y-4 pt-2">
+                    <div className="relative h-48 w-48 flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={devices}
+                            dataKey="count"
+                            nameKey="device"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            innerRadius={60}
+                            paddingAngle={3}
+                          >
+                            {devices.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={DEVICE_COLORS[entry.device.toLowerCase()] || '#64748B'}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: '#FFFFFF',
+                              borderColor: '#E5E7EB',
+                              borderRadius: '0.5rem',
+                              color: '#0F172A',
+                              fontSize: '12px',
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      {/* Donut Center Total Text */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-xl font-bold text-slate-900">{totalDeviceClicks}</span>
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          {totalDeviceClicks === 1 ? 'click' : 'clicks'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Legend below with color dots and percentages */}
+                    <div className="flex items-center justify-center gap-4 flex-wrap pt-2 border-t border-slate-100 w-full">
+                      {devices.map((entry) => {
+                        const pct = Math.round((entry.count / totalDeviceClicks) * 100) || 0;
+                        const color = DEVICE_COLORS[entry.device.toLowerCase()] || '#64748B';
+                        return (
+                          <div key={entry.device} className="flex items-center gap-1.5 text-xs">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full shrink-0"
+                              style={{ backgroundColor: color }}
+                            />
+                            <span className="font-medium text-slate-700 capitalize">{entry.device}</span>
+                            <span className="text-slate-400">({pct}%)</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-16 text-xs text-slate-500">No device telemetry logged yet.</div>
+                )}
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
     </DashboardLayout>
   );
 };

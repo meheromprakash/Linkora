@@ -3,10 +3,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { DashboardLayout } from '../layouts/DashboardLayout';
-import { SummaryStats, ShortLink } from '../types';
+import { SummaryStats, ShortLink, AnalyticsData } from '../types';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { PageHeader } from '../components/ui/PageHeader';
+import { StatCard } from '../components/ui/StatCard';
+import { IconButton } from '../components/ui/IconButton';
+import { Skeleton } from '../components/ui/Skeleton';
+import { EmptyState } from '../components/ui/EmptyState';
 import { useToast } from '../components/ui/Toast';
 import { QRModal } from '../components/QRModal';
 import { clsx } from 'clsx';
@@ -15,14 +20,26 @@ import {
   MousePointerClick,
   CheckCircle2,
   Trophy,
-  Plus,
   Copy,
+  Check,
   QrCode,
   ExternalLink,
   Sparkles,
   ArrowRight,
   RefreshCw,
+  ChevronDown,
+  Globe,
+  TrendingUp,
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts';
 
 export const DashboardPage: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -31,6 +48,7 @@ export const DashboardPage: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedQRLink, setSelectedQRLink] = useState<{ url: string; title: string } | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -42,6 +60,7 @@ export const DashboardPage: React.FC = () => {
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ['summaryStats'] }),
         queryClient.refetchQueries({ queryKey: ['recentLinks'] }),
+        queryClient.refetchQueries({ queryKey: ['dashboardAnalytics'] }),
       ]);
       toast('Dashboard metrics refreshed', 'success');
     } catch (err) {
@@ -65,20 +84,29 @@ export const DashboardPage: React.FC = () => {
     queryFn: () => api.get('/links?limit=5'),
   });
 
+  // Fetch 7-day analytics for mini chart
+  const { data: analyticsResponse } = useQuery<{ data: AnalyticsData }>({
+    queryKey: ['dashboardAnalytics'],
+    queryFn: () => api.get('/analytics/details?days=7'),
+  });
+
   const stats = summaryResponse?.data;
   const recentLinks = linksResponse?.data?.links || [];
+  const clicksOverTime = analyticsResponse?.data?.clicksOverTime || [];
 
   // Create link mutation
   const createLinkMutation = useMutation({
     mutationFn: (newLink: { originalUrl: string; customSlug?: string; title?: string }) =>
       api.post('/links', newLink),
-    onSuccess: (res: any) => {
+    onSuccess: () => {
       toast('Short link created successfully!', 'success');
       setUrl('');
       setCustomSlug('');
       setTitle('');
+      setShowAdvanced(false);
       queryClient.invalidateQueries({ queryKey: ['summaryStats'] });
       queryClient.invalidateQueries({ queryKey: ['recentLinks'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardAnalytics'] });
     },
     onError: (err: any) => {
       toast(err.message || 'Failed to create short link', 'error');
@@ -95,234 +123,348 @@ export const DashboardPage: React.FC = () => {
     });
   };
 
-  const copyToClipboard = (shortCode: string) => {
+  const copyToClipboard = (id: string, shortCode: string) => {
     const fullUrl = `${window.location.origin}/r/${shortCode}`;
     navigator.clipboard.writeText(fullUrl);
+    setCopiedId(id);
     toast('Short link copied to clipboard!', 'success');
+    setTimeout(() => setCopiedId(null), 1500);
   };
+
+  // Extract domain for favicon
+  const getFaviconUrl = (originalUrl: string) => {
+    try {
+      const parsed = new URL(originalUrl.startsWith('http') ? originalUrl : `https://${originalUrl}`);
+      return `https://www.google.com/s2/favicons?domain=${parsed.hostname}&sz=64`;
+    } catch {
+      return null;
+    }
+  };
+
+  // Top performing link text determination
+  const topLinkTitle =
+    stats?.topLink && stats.topLink.clickCount > 1
+      ? stats.topLink.title || `/r/${stats.topLink.shortCode}`
+      : 'No clear leader yet';
+
+  const topLinkSubtext =
+    stats?.topLink && stats.topLink.clickCount > 1
+      ? `${stats.topLink.clickCount} total clicks`
+      : 'Requires >1 click';
+
+  // Format date helper (e.g. "Sep 14")
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const formattedClicksOverTime = clicksOverTime.map((item) => ({
+    ...item,
+    formattedDate: formatDate(item.date),
+  }));
 
   return (
     <DashboardLayout>
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
-        <div>
-          <h1 className="text-2xl font-black text-slate-100 tracking-tight">Dashboard Overview</h1>
-          <p className="text-xs text-slate-400">
-            Monitor link metrics, track click performance, and shorten URLs instantly.
-          </p>
-        </div>
-        <Link to="/links">
-          <Button variant="outline" size="sm" icon={<ArrowRight className="w-4 h-4" />}>
-            Manage All Links
-          </Button>
-        </Link>
-      </div>
+      <div className="flex flex-col gap-6">
+        {/* Page Header */}
+        <PageHeader
+          title="Dashboard Overview"
+          subtitle="Monitor link metrics, track click performance, and shorten URLs instantly."
+          actions={
+            <Link to="/links">
+              <Button variant="outline" size="sm" icon={<ArrowRight className="w-4 h-4" />}>
+                Manage All Links
+              </Button>
+            </Link>
+          }
+        />
 
-      {/* Quick Shorten Bar Card */}
-      <Card className="p-6 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900/90 border-brand-neon/30 glow-brand">
-        <form onSubmit={handleCreateLink} className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <div className="flex-1 w-full">
-              <Input
-                type="url"
-                placeholder="Paste long URL here (e.g. https://github.com/com-bot/assessment)"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                leftIcon={<Link2 className="w-4 h-4 text-brand-neon" />}
-                required
-              />
+        {/* URL Input Card */}
+        <Card className="p-6 bg-white border border-slate-200/90 shadow-card">
+          <form onSubmit={handleCreateLink} className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <Input
+                  type="url"
+                  placeholder="Paste a long URL here (e.g. https://example.com/very-long-path)"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  leftIcon={<Link2 className="w-4 h-4 text-brand-600" />}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                className="shrink-0"
+                isLoading={createLinkMutation.isPending}
+                icon={<Sparkles className="w-4 h-4" />}
+              >
+                Shorten URL
+              </Button>
             </div>
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              className="w-full sm:w-auto shrink-0"
-              isLoading={createLinkMutation.isPending}
-              icon={<Sparkles className="w-4 h-4" />}
-            >
-              Shorten URL
-            </Button>
-          </div>
 
-          <div className="flex items-center justify-between pt-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-brand-neon hover:underline font-medium flex items-center gap-1"
-            >
-              {showAdvanced ? 'Hide Custom Options' : '+ Custom Vanity Slug & Title'}
-            </button>
-          </div>
-
-          {showAdvanced && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800 animate-fadeIn">
-              <Input
-                label="Custom Vanity Slug (Optional)"
-                placeholder="e.g. my-brand"
-                value={customSlug}
-                onChange={(e) => setCustomSlug(e.target.value)}
-                helperText="Collision protected unique slug"
-              />
-              <Input
-                label="Link Title (Optional)"
-                placeholder="e.g. Q3 Marketing Docs"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+            {/* Expandable Advanced Options Header */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-xs font-semibold text-slate-600 hover:text-brand-700 flex items-center gap-1.5 transition-colors focus:outline-none"
+              >
+                <span>{showAdvanced ? 'Hide advanced options' : '+ Custom Vanity Slug & Title'}</span>
+                <ChevronDown
+                  className={clsx('w-3.5 h-3.5 transition-transform duration-250', showAdvanced && 'rotate-180')}
+                />
+              </button>
             </div>
-          )}
-        </form>
-      </Card>
 
-      {/* Summary Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-brand-neon/10 border border-brand-neon/20 flex items-center justify-center text-brand-neon">
-            <Link2 className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">Total Short Links</p>
-            <h3 className="text-2xl font-black text-slate-100">
-              {isSummaryLoading ? '...' : stats?.totalLinks || 0}
-            </h3>
-          </div>
-        </Card>
-
-        <Card className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-            <MousePointerClick className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">Total Clicks Recorded</p>
-            <h3 className="text-2xl font-black text-slate-100">
-              {isSummaryLoading ? '...' : stats?.totalClicks || 0}
-            </h3>
-          </div>
-        </Card>
-
-        <Card className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">Active Links</p>
-            <h3 className="text-2xl font-black text-slate-100">
-              {isSummaryLoading ? '...' : stats?.activeLinks || 0}
-            </h3>
-          </div>
-        </Card>
-
-        <Card className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-            <Trophy className="w-6 h-6" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs text-slate-400 font-medium">Top Performing Link</p>
-            <h3 className="text-sm font-bold text-slate-100 truncate">
-              {isSummaryLoading ? '...' : stats?.topLink ? stats.topLink.title : 'None yet'}
-            </h3>
-            {stats?.topLink && (
-              <span className="text-xs text-brand-neon font-mono">
-                {stats.topLink.clickCount} clicks
-              </span>
+            {/* Expandable Panel */}
+            {showAdvanced && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100 animate-fade-in-up">
+                <Input
+                  label="Custom Vanity Slug (Optional)"
+                  placeholder="e.g. summer-sale"
+                  value={customSlug}
+                  onChange={(e) => setCustomSlug(e.target.value)}
+                  helperText="Collision-protected custom alias"
+                />
+                <Input
+                  label="Link Title (Optional)"
+                  placeholder="e.g. Q3 Marketing Campaign"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  helperText="Friendly name for identification"
+                />
+              </div>
             )}
-          </div>
+          </form>
         </Card>
-      </div>
 
-      {/* Recent Links Table */}
-      <Card className="p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-100">Recent Short Links</h2>
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition disabled:opacity-50 disabled:cursor-not-allowed select-none"
-              title="Refresh click and analytics data"
-            >
-              <RefreshCw className={clsx("w-3.5 h-3.5", isRefreshing && "animate-spin text-brand-neon")} />
-              <span>Refresh</span>
-            </button>
-            <Link to="/links" className="text-xs text-brand-neon hover:underline font-semibold">
-              View All →
+        {/* 4 Stat Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {isSummaryLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="h-28 p-4 flex flex-col justify-between">
+                <Skeleton className="w-24 h-4" />
+                <Skeleton className="w-16 h-8 mt-2" />
+              </Card>
+            ))
+          ) : (
+            <>
+              <StatCard
+                label="Total Short Links"
+                value={stats?.totalLinks ?? 0}
+                icon={<Link2 className="w-4 h-4 text-slate-700" />}
+              />
+              <StatCard
+                label="Total Clicks Recorded"
+                value={stats?.totalClicks ?? 0}
+                icon={<MousePointerClick className="w-4 h-4 text-slate-700" />}
+              />
+              <StatCard
+                label="Active Links"
+                value={stats?.activeLinks ?? 0}
+                icon={<CheckCircle2 className="w-4 h-4 text-slate-700" />}
+              />
+              <StatCard
+                label="Top Performing Link"
+                value={topLinkTitle}
+                subtext={topLinkSubtext}
+                isNumericValue={false}
+                icon={<Trophy className="w-4 h-4 text-slate-700" />}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Recent Short Links Section */}
+        <Card className="p-6 space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-slate-900">Recent Short Links</h2>
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition focus:outline-none"
+                title="Refresh link metrics"
+                aria-label="Refresh link metrics"
+              >
+                <RefreshCw className={clsx('w-3.5 h-3.5', isRefreshing && 'animate-spin text-brand-600')} />
+              </button>
+            </div>
+            <Link to="/links" className="text-xs text-brand-600 hover:text-brand-700 font-semibold flex items-center gap-1">
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-        </div>
 
-        {isLinksLoading ? (
-          <div className="text-center py-8 text-slate-400 text-sm">Loading recent links...</div>
-        ) : recentLinks.length === 0 ? (
-          <div className="text-center py-10 space-y-3">
-            <Link2 className="w-10 h-10 text-slate-600 mx-auto" />
-            <p className="text-sm text-slate-400">No short links created yet.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="border-b border-slate-800 text-xs text-slate-400 uppercase tracking-wider">
-                  <th className="py-3 px-4">Title & Original URL</th>
-                  <th className="py-3 px-4">Short Link</th>
-                  <th className="py-3 px-4 text-center">Clicks</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {recentLinks.map((link) => {
-                  const shortUrl = `${window.location.origin}/r/${link.shortCode}`;
-                  return (
-                    <tr key={link._id} className="hover:bg-slate-800/40 transition">
-                      <td className="py-3.5 px-4 max-w-xs">
-                        <div className="font-semibold text-slate-200 truncate">{link.title}</div>
-                        <div className="text-xs text-slate-400 truncate">{link.originalUrl}</div>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-xs text-brand-neon">
-                        /r/{link.shortCode}
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-neon/10 text-brand-neon border border-brand-neon/20">
-                          {link.clickCount}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            title="Copy link"
-                            onClick={() => copyToClipboard(link.shortCode)}
-                          >
-                            <Copy className="w-3.5 h-3.5 text-slate-300" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            title="View QR Code"
-                            onClick={() => setSelectedQRLink({ url: shortUrl, title: link.title })}
-                          >
-                            <QrCode className="w-3.5 h-3.5 text-slate-300" />
-                          </Button>
-                          <a
-                            href={shortUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
-                            title="Test redirect"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          {isLinksLoading ? (
+            <div className="space-y-3 py-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-3 border border-slate-100 rounded-lg">
+                  <Skeleton className="w-48 h-5" />
+                  <Skeleton className="w-20 h-5" />
+                </div>
+              ))}
+            </div>
+          ) : recentLinks.length === 0 ? (
+            <EmptyState
+              icon={<Link2 />}
+              title="No short links created yet"
+              description="Create your first shortened link using the form above to start tracking clicks."
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="py-3 px-3">Link Details</th>
+                    <th className="py-3 px-3">Short Path</th>
+                    <th className="py-3 px-3 text-center">Clicks</th>
+                    <th className="py-3 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {recentLinks.map((link) => {
+                    const shortUrl = `${window.location.origin}/r/${link.shortCode}`;
+                    const favicon = getFaviconUrl(link.originalUrl);
+                    const isCopied = copiedId === link._id;
+
+                    return (
+                      <tr
+                        key={link._id}
+                        className="hover:bg-slate-50/80 transition-colors duration-150 group"
+                      >
+                        <td className="py-3.5 px-3 max-w-xs sm:max-w-md">
+                          <div className="flex items-center gap-3">
+                            <div className="w-7 h-7 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
+                              {favicon ? (
+                                <img
+                                  src={favicon}
+                                  alt=""
+                                  className="w-4 h-4 object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <Globe className="w-3.5 h-3.5 text-slate-400" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-semibold text-slate-900 truncate">
+                                {link.title || link.originalUrl}
+                              </div>
+                              <div className="text-xs text-slate-500 truncate mt-0.5">
+                                {link.originalUrl}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-3 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-mono text-xs border border-slate-200/60">
+                            /r/{link.shortCode}
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                            {link.clickCount}
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-3 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1">
+                            <IconButton
+                              icon={
+                                isCopied ? (
+                                  <Check className="w-4 h-4 text-emerald-600 scale-110 transition-transform" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )
+                              }
+                              label="Copy short link"
+                              tooltip="Copy link"
+                              onClick={() => copyToClipboard(link._id, link.shortCode)}
+                            />
+                            <IconButton
+                              icon={<QrCode className="w-4 h-4" />}
+                              label="View QR code"
+                              tooltip="QR Code"
+                              onClick={() =>
+                                setSelectedQRLink({ url: shortUrl, title: link.title || `/r/${link.shortCode}` })
+                              }
+                            />
+                            <a
+                              href={shortUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-full text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all duration-150 active:scale-95"
+                              title="Open link"
+                              aria-label="Open link in new tab"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+
+        {/* 7-Day Clicks Mini Chart Card */}
+        {formattedClicksOverTime.length > 0 && (
+          <Card className="p-6 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-brand-600" />
+                <h2 className="text-sm font-semibold text-slate-900">Clicks (Last 7 Days)</h2>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">Daily Trend</span>
+            </div>
+            <div className="h-44 w-full pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={formattedClicksOverTime} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                  <XAxis dataKey="formattedDate" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis
+                    stroke="#94A3B8"
+                    fontSize={11}
+                    allowDecimals={false}
+                    domain={[0, (dataMax: number) => Math.max(4, Math.ceil(dataMax))]}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#F1F5F9' }}
+                    contentStyle={{
+                      backgroundColor: '#FFFFFF',
+                      borderColor: '#E5E7EB',
+                      borderRadius: '0.5rem',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      color: '#0F172A',
+                      fontSize: '12px',
+                    }}
+                  />
+                  <Bar dataKey="clicks" fill="#16A34A" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
         )}
-      </Card>
+      </div>
 
       {/* QR Code Modal */}
       {selectedQRLink && (

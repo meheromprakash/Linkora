@@ -35,17 +35,15 @@ function LandingPage() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col">
       {/* Header Navbar */}
-      <header className="border-b border-slate-800/80 bg-[#090d16]/80 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <img src="/logo.svg" alt="Linkora Logo" className="w-9 h-9 transition-transform group-hover:scale-105" />
-            <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-neon bg-clip-text text-transparent">
-                Linkora
-              </span>
-            </div>
+            <img src="/logo.svg" alt="Linkora Logo" className="w-8 h-8 transition-transform group-hover:scale-105" />
+            <span className="text-xl font-bold tracking-tight text-slate-900">
+              Linkora
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             {user ? (
@@ -73,16 +71,16 @@ function LandingPage() {
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-neon/10 border border-brand-neon/30 text-brand-neon text-xs font-semibold uppercase tracking-wider">
-            <Zap className="w-3.5 h-3.5" /> High Performance Short-Link & Bio Engine
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-semibold uppercase tracking-wider">
+            <Zap className="w-3.5 h-3.5 text-brand-600" /> High Performance Short-Link & Bio Engine
           </div>
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-100 leading-tight">
+          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-slate-900 leading-tight">
             Branded links.{' '}
-            <span className="bg-gradient-to-r from-brand-neon via-emerald-400 to-teal-300 bg-clip-text text-transparent">
+            <span className="text-brand-600">
               Smarter sharing.
             </span>
           </h1>
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
             Linkora combines high-performance URL shortening, real-time privacy-friendly click telemetry, and customizable bio-link profiles in one sleek hub.
           </p>
           <div className="flex items-center justify-center gap-4 pt-4">
@@ -101,30 +99,30 @@ function LandingPage() {
 
         {/* Feature Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
-          <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-neon/10 flex items-center justify-center text-brand-neon">
+          <div className="bg-white border border-slate-200/90 p-6 rounded-card shadow-card space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
               <Link2 className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-slate-100">Short-Link Engine</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-base font-semibold text-slate-900">Short-Link Engine</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
               Generate 6-character short codes or custom vanity slugs with automatic collision protection and sub-millisecond 302 redirects.
             </p>
           </div>
-          <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+          <div className="bg-white border border-slate-200/90 p-6 rounded-card shadow-card space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
               <BarChart3 className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-slate-100">Click Telemetry</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-base font-semibold text-slate-900">Click Telemetry</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
               Asynchronously capture clicks over time, referrer sources, browser types, and device breakdowns with privacy-compliant salted IP hashing.
             </p>
           </div>
-          <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+          <div className="bg-white border border-slate-200/90 p-6 rounded-card shadow-card space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center">
               <Shield className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-slate-100">Bio-Link Builder</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-base font-semibold text-slate-900">Bio-Link Builder</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
               Craft beautiful, responsive link-in-bio profiles with customizable themes (Minimal Light, Dark Slate, Gradient Neon) and custom social handles.
             </p>
           </div>
@@ -132,8 +130,8 @@ function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 py-8 text-center text-sm text-slate-500">
-        Linkora &copy; {new Date().getFullYear()} — Built for Com.bot Technical Assessment
+      <footer className="border-t border-slate-200/80 py-8 text-center text-xs text-slate-500 bg-white">
+        Linkora &copy; {new Date().getFullYear()} — Modern Light Theme SaaS Edition
       </footer>
     </div>
   );

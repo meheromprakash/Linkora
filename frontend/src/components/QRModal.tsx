@@ -43,29 +43,33 @@ export const QRModal: React.FC<QRModalProps> = ({
       <div className="flex flex-col items-center gap-6 py-2">
         <div
           ref={qrRef}
-          className="p-5 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-slate-700"
+          className="p-5 bg-white rounded-2xl shadow-card flex items-center justify-center border border-slate-200"
         >
           <QRCodeCanvas
             value={shortUrl}
             size={200}
             bgColor="#FFFFFF"
-            fgColor="#090D16"
+            fgColor="#0F172A"
             level="H"
             includeMargin={true}
           />
         </div>
 
         <div className="text-center space-y-1">
-          <h4 className="font-bold text-slate-100 text-base">{title}</h4>
-          <p className="text-xs text-brand-neon font-mono select-all flex items-center justify-center gap-1.5">
+          <h4 className="font-semibold text-slate-900 text-base">{title}</h4>
+          <p className="text-xs text-brand-700 font-mono select-all flex items-center justify-center gap-1.5">
             {shortUrl}
-            <button onClick={handleCopy} title="Copy link">
-              <Copy className="w-3.5 h-3.5 text-slate-400 hover:text-white" />
+            <button
+              onClick={handleCopy}
+              title="Copy link"
+              className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
+            >
+              <Copy className="w-3.5 h-3.5" />
             </button>
           </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full pt-2 border-t border-slate-800">
+        <div className="flex items-center gap-3 w-full pt-4 border-t border-slate-200/80">
           <Button
             variant="outline"
             className="flex-1"
@@ -87,3 +91,4 @@ export const QRModal: React.FC<QRModalProps> = ({
     </Modal>
   );
 };
+

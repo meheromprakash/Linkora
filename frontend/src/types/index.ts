@@ -4,6 +4,7 @@ export interface User {
   email: string;
   isVerified: boolean;
   createdAt?: string;
+  bioProfile?: BioProfile;
 }
 
 export interface ShortLink {

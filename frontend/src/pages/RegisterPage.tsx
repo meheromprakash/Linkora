@@ -62,29 +62,29 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 border-slate-800 space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-8 bg-white border border-slate-200/90 shadow-modal space-y-6">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src="/logo.svg" alt="Linkora" className="w-10 h-10" />
-            <span className="text-2xl font-black text-white">Linkora</span>
+            <img src="/logo.svg" alt="Linkora" className="w-9 h-9" />
+            <span className="text-2xl font-bold text-slate-900 tracking-tight">Linkora</span>
           </Link>
-          <h2 className="text-xl font-bold text-slate-100">Create Your Account</h2>
-          <p className="text-xs text-slate-400">
+          <h2 className="text-xl font-semibold text-slate-900">Create Your Account</h2>
+          <p className="text-xs text-slate-500">
             Start branding your short links and bio-link hub in seconds
           </p>
         </div>
 
         {verificationSentToken ? (
-          <div className="bg-brand-500/10 border border-brand-500/30 p-5 rounded-xl space-y-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-brand-neon/20 border border-brand-neon/40 text-brand-neon mx-auto flex items-center justify-center">
+          <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-card space-y-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-slate-100 text-base">Verify Your Email</h3>
-            <p className="text-xs text-slate-300">
+            <h3 className="font-semibold text-slate-900 text-base">Verify Your Email</h3>
+            <p className="text-xs text-slate-600">
               A simulated email verification token was issued for assessment testing.
             </p>
-            <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-xs font-mono text-brand-neon break-all">
+            <div className="bg-white p-2.5 rounded-lg border border-slate-200 text-xs font-mono text-emerald-700 break-all">
               {verificationSentToken}
             </div>
             <Button
@@ -102,7 +102,7 @@ export const RegisterPage: React.FC = () => {
               label="Full Name"
               type="text"
               placeholder="Alex Rivera"
-              leftIcon={<User className="w-4 h-4" />}
+              leftIcon={<User className="w-4 h-4 text-slate-400" />}
               error={errors.name?.message}
               {...register('name')}
             />
@@ -111,7 +111,7 @@ export const RegisterPage: React.FC = () => {
               label="Email Address"
               type="email"
               placeholder="you@example.com"
-              leftIcon={<Mail className="w-4 h-4" />}
+              leftIcon={<Mail className="w-4 h-4 text-slate-400" />}
               error={errors.email?.message}
               {...register('email')}
             />
@@ -120,7 +120,7 @@ export const RegisterPage: React.FC = () => {
               label="Password"
               type="password"
               placeholder="Min 8 chars, 1 uppercase, 1 number"
-              leftIcon={<Lock className="w-4 h-4" />}
+              leftIcon={<Lock className="w-4 h-4 text-slate-400" />}
               error={errors.password?.message}
               {...register('password')}
             />
@@ -137,9 +137,9 @@ export const RegisterPage: React.FC = () => {
           </form>
         )}
 
-        <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
+        <div className="text-center text-xs text-slate-500 pt-3 border-t border-slate-100">
           Already have an account?{' '}
-          <Link to="/login" className="text-brand-neon font-semibold hover:underline">
+          <Link to="/login" className="text-brand-600 font-semibold hover:text-brand-700 hover:underline">
             Sign In
           </Link>
         </div>

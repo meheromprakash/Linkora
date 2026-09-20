@@ -33,15 +33,15 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 border-slate-800 space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-8 bg-white border border-slate-200/90 shadow-modal space-y-6">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src="/logo.svg" alt="Linkora" className="w-10 h-10" />
-            <span className="text-2xl font-black text-white">Linkora</span>
+            <img src="/logo.svg" alt="Linkora" className="w-9 h-9" />
+            <span className="text-2xl font-bold text-slate-900 tracking-tight">Linkora</span>
           </Link>
-          <h2 className="text-xl font-bold text-slate-100">Set New Password</h2>
-          <p className="text-xs text-slate-400">
+          <h2 className="text-xl font-semibold text-slate-900">Set New Password</h2>
+          <p className="text-xs text-slate-500">
             Enter your reset token and new account password
           </p>
         </div>
@@ -60,7 +60,7 @@ export const ResetPasswordPage: React.FC = () => {
             label="New Password"
             type="password"
             placeholder="Min 8 chars, 1 uppercase, 1 number"
-            leftIcon={<Lock className="w-4 h-4" />}
+            leftIcon={<Lock className="w-4 h-4 text-slate-400" />}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
@@ -77,8 +77,8 @@ export const ResetPasswordPage: React.FC = () => {
           </Button>
         </form>
 
-        <div className="text-center text-xs pt-2 border-t border-slate-800">
-          <Link to="/login" className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white">
+        <div className="text-center text-xs pt-3 border-t border-slate-100">
+          <Link to="/login" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-800 font-medium">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Sign In
           </Link>
         </div>
@@ -86,3 +86,4 @@ export const ResetPasswordPage: React.FC = () => {
     </div>
   );
 };
+

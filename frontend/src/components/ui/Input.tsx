@@ -28,7 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-xs font-medium text-slate-300">
+          <label htmlFor={inputId} className="text-xs font-semibold text-slate-700">
             {label}
           </label>
         )}
@@ -42,10 +42,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={clsx(
-              'w-full bg-slate-900/90 border text-sm text-slate-100 placeholder-slate-500 rounded-lg px-3.5 py-2.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-neon/60 focus:border-brand-neon/80 disabled:opacity-50 disabled:cursor-not-allowed',
+              'w-full bg-white border text-sm text-slate-900 placeholder-slate-400 rounded-input px-3.5 py-2.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-600/25 focus:border-brand-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm',
               leftIcon && 'pl-10',
               rightElement && 'pr-10',
-              error ? 'border-rose-500/80 focus:ring-rose-500' : 'border-slate-800 hover:border-slate-700',
+              error ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 hover:border-slate-300',
               className
             )}
             {...props}
@@ -56,9 +56,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
-        {error && <p className="text-xs text-rose-400 font-medium">{error}</p>}
+        {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
         {helperText && !error && (
-          <p className="text-xs text-slate-400">{helperText}</p>
+          <p className="text-xs text-slate-500">{helperText}</p>
         )}
       </div>
     );
@@ -66,3 +66,4 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
+
