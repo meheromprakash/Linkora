@@ -166,9 +166,10 @@ export class LinkService {
    * High performance indexed lookup for redirect route
    */
   static async findLinkForRedirect(identifier: string): Promise<IShortLink | null> {
-    const code = identifier.toLowerCase();
+    const rawCode = identifier.trim();
+    const lowerCode = rawCode.toLowerCase();
     return await ShortLink.findOne({
-      $or: [{ shortCode: code }, { customSlug: code }],
+      $or: [{ shortCode: rawCode }, { shortCode: lowerCode }, { customSlug: lowerCode }],
     });
   }
 
