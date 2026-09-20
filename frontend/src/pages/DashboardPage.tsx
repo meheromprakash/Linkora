@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import { QRModal } from '../components/QRModal';
+import { clsx } from 'clsx';
 import {
   Link2,
   MousePointerClick,
@@ -20,6 +21,7 @@ import {
   ExternalLink,
   Sparkles,
   ArrowRight,
+  RefreshCw,
 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
@@ -28,9 +30,26 @@ export const DashboardPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedQRLink, setSelectedQRLink] = useState<{ url: string; title: string } | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['summaryStats'] }),
+        queryClient.refetchQueries({ queryKey: ['recentLinks'] }),
+      ]);
+      toast('Dashboard metrics refreshed', 'success');
+    } catch (err) {
+      toast('Failed to refresh dashboard metrics', 'error');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Fetch summary stats
   const { data: summaryResponse, isLoading: isSummaryLoading } = useQuery<{ data: SummaryStats }>({
@@ -215,9 +234,21 @@ export const DashboardPage: React.FC = () => {
       <Card className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-100">Recent Short Links</h2>
-          <Link to="/links" className="text-xs text-brand-neon hover:underline font-semibold">
-            View All →
-          </Link>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition disabled:opacity-50 disabled:cursor-not-allowed select-none"
+              title="Refresh click and analytics data"
+            >
+              <RefreshCw className={clsx("w-3.5 h-3.5", isRefreshing && "animate-spin text-brand-neon")} />
+              <span>Refresh</span>
+            </button>
+            <Link to="/links" className="text-xs text-brand-neon hover:underline font-semibold">
+              View All →
+            </Link>
+          </div>
         </div>
 
         {isLinksLoading ? (
