@@ -149,19 +149,19 @@ export const AnalyticsPage: React.FC = () => {
         ) : (
           <div className="flex flex-col gap-6">
             {/* Clicks Over Time (Bar Chart) */}
-            <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+            <Card className="p-4 sm:p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-slate-900">Clicks Over Time</h2>
+                <h2 className="text-sm sm:text-base font-semibold text-slate-900">Clicks Over Time</h2>
                 <span className="text-xs text-slate-500 font-medium">Clicks per day</span>
               </div>
-              <div className="h-72 w-full pt-2">
+              <div className="h-64 sm:h-72 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={formattedClicksOverTime} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                  <BarChart data={formattedClicksOverTime} margin={{ top: 10, right: 5, left: -22, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                    <XAxis dataKey="formattedDate" stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} />
+                    <XAxis dataKey="formattedDate" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                     <YAxis
                       stroke="#94A3B8"
-                      fontSize={12}
+                      fontSize={11}
                       allowDecimals={false}
                       domain={[0, (dataMax: number) => Math.max(4, Math.ceil(dataMax))]}
                       tickLine={false}
@@ -185,22 +185,22 @@ export const AnalyticsPage: React.FC = () => {
             </Card>
 
             {/* Grid: Top Referrers & Device Breakdown */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Top Referrer Sources (Bar Chart) */}
-              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
-                <h2 className="text-base font-semibold text-slate-900">Top Referrer Sources</h2>
+              <Card className="p-4 sm:p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+                <h2 className="text-sm sm:text-base font-semibold text-slate-900">Top Referrer Sources</h2>
                 {referrers.length > 0 ? (
                   <div className="h-64 w-full pt-2">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={referrers} layout="vertical" margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
+                      <BarChart data={referrers} layout="vertical" margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
-                        <XAxis type="number" stroke="#94A3B8" fontSize={12} allowDecimals={false} tickLine={false} axisLine={false} />
+                        <XAxis type="number" stroke="#94A3B8" fontSize={11} allowDecimals={false} tickLine={false} axisLine={false} />
                         <YAxis
                           type="category"
                           dataKey="referrer"
                           stroke="#475569"
-                          fontSize={12}
-                          width={90}
+                          fontSize={11}
+                          width={75}
                           tickLine={false}
                           axisLine={false}
                         />
@@ -231,8 +231,8 @@ export const AnalyticsPage: React.FC = () => {
               </Card>
 
               {/* Device Breakdown (Thinner Donut Chart with center text & legend) */}
-              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
-                <h2 className="text-base font-semibold text-slate-900">Device Breakdown</h2>
+              <Card className="p-4 sm:p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+                <h2 className="text-sm sm:text-base font-semibold text-slate-900">Device Breakdown</h2>
                 {devices.length > 0 ? (
                   <div className="flex flex-col items-center justify-center space-y-4 pt-2">
                     <div className="relative h-48 w-48 flex items-center justify-center">

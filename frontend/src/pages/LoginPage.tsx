@@ -47,8 +47,8 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 bg-white border border-slate-200/90 shadow-modal space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-3.5 sm:p-4">
+      <Card className="w-full max-w-md p-5 sm:p-8 bg-white border border-slate-200/90 shadow-modal space-y-5 sm:space-y-6">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2">
             <img src="/logo.svg" alt="Linkora" className="w-9 h-9" />

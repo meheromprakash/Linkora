@@ -26,7 +26,7 @@ export function SegmentedControl<T extends string>({
   return (
     <div
       className={clsx(
-        'relative inline-flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200/80 select-none shrink-0 whitespace-nowrap',
+        'relative inline-flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200/80 select-none shrink-0 whitespace-nowrap max-w-full overflow-x-auto',
         className
       )}
     >
@@ -46,8 +46,8 @@ export function SegmentedControl<T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             className={clsx(
-              'relative z-10 flex-1 font-medium transition-colors duration-150 text-center rounded-md whitespace-nowrap min-w-[84px] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/30',
-              size === 'sm' ? 'px-3 py-1 text-xs' : 'px-3.5 py-1.5 text-xs sm:text-sm',
+              'relative z-10 flex-1 font-medium transition-colors duration-150 text-center rounded-md whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/30',
+              size === 'sm' ? 'px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs min-w-[64px] sm:min-w-[84px]' : 'px-3 sm:px-3.5 py-1.5 text-xs sm:text-sm min-w-[72px] sm:min-w-[84px]',
               isActive ? 'text-slate-900 font-semibold' : 'text-slate-600 hover:text-slate-900'
             )}
           >

@@ -272,28 +272,28 @@ export const LinksPage: React.FC = () => {
               <Card
                 key={link._id}
                 hoverable
-                className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 group transition-all duration-200"
+                className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4 group transition-all duration-200"
               >
                 {/* Left Side: Favicon + Title + Badge + Mono Short URL + Truncated Destination */}
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="w-9 h-9 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 mt-0.5 overflow-hidden">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 mt-0.5 overflow-hidden">
                     {favicon ? (
                       <img
                         src={favicon}
                         alt=""
-                        className="w-5 h-5 object-contain"
+                        className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
                     ) : (
-                      <Globe className="w-4 h-4 text-slate-400" />
+                      <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                     )}
                   </div>
 
                   <div className="space-y-1 flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <h3 className="font-semibold text-slate-900 text-base truncate leading-snug">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-slate-900 text-sm sm:text-base truncate leading-snug">
                         {link.title || link.originalUrl}
                       </h3>
                       <button
@@ -312,7 +312,7 @@ export const LinksPage: React.FC = () => {
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-2 pt-0.5">
+                    <div className="flex items-center gap-2 pt-0.5 flex-wrap">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-800 font-mono text-xs border border-slate-200/80">
                         /r/{link.shortCode}
                       </span>
@@ -331,17 +331,17 @@ export const LinksPage: React.FC = () => {
                       />
                     </div>
 
-                    <p className="text-xs text-slate-500 truncate max-w-xl leading-normal">
+                    <p className="text-xs text-slate-500 truncate max-w-full sm:max-w-xl leading-normal">
                       {link.originalUrl}
                     </p>
                   </div>
                 </div>
 
                 {/* Right Side: Clicks Stat + Ghost Action Buttons */}
-                <div className="flex items-center justify-between md:justify-end gap-5 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
-                  <div className="text-right px-3 py-1 rounded-lg bg-slate-50 border border-slate-200/60">
-                    <span className="text-[11px] text-slate-500 font-medium block">Clicks</span>
-                    <span className="text-sm font-bold text-slate-900">{link.clickCount}</span>
+                <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-5 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
+                  <div className="text-left md:text-right px-2.5 sm:px-3 py-1 rounded-lg bg-slate-50 border border-slate-200/60">
+                    <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block">Clicks</span>
+                    <span className="text-xs sm:text-sm font-bold text-slate-900">{link.clickCount}</span>
                   </div>
 
                   <div className="flex items-center gap-1">
@@ -380,7 +380,7 @@ export const LinksPage: React.FC = () => {
 
       {/* Pagination Controls */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between pt-4 text-xs text-slate-500">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 text-xs text-slate-500 text-center sm:text-left">
           <span>
             Showing page {pagination.page} of {pagination.totalPages} ({pagination.total} total links)
           </span>
@@ -450,11 +450,11 @@ export const LinksPage: React.FC = () => {
             onChange={(e) => setNewTitle(e.target.value)}
           />
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200/80">
-            <Button variant="ghost" size="sm" onClick={() => setIsCreateOpen(false)}>
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4 border-t border-slate-200/80">
+            <Button variant="ghost" size="sm" onClick={() => setIsCreateOpen(false)} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" variant="primary" size="sm" isLoading={createMutation.isPending}>
+            <Button type="submit" variant="primary" size="sm" isLoading={createMutation.isPending} className="w-full sm:w-auto">
               Create Short Link
             </Button>
           </div>

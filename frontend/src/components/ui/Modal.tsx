@@ -34,15 +34,15 @@ export const Modal: React.FC<ModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in-up"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in-up"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg bg-white border border-slate-200/90 rounded-2xl shadow-modal overflow-hidden p-6 text-slate-900 animate-scale-in max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-lg bg-white border border-slate-200/90 rounded-2xl shadow-modal overflow-hidden p-4 sm:p-6 text-slate-900 animate-scale-in max-h-[88vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 shrink-0">
-          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-200/80 shrink-0">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900">{title}</h3>
           <button
             onClick={onClose}
             className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/30"
@@ -51,7 +51,7 @@ export const Modal: React.FC<ModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="pt-4 overflow-y-auto flex-1">{children}</div>
+        <div className="pt-3 sm:pt-4 overflow-y-auto flex-1">{children}</div>
       </div>
     </div>,
     document.body

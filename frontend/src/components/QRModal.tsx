@@ -40,14 +40,14 @@ export const QRModal: React.FC<QRModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="QR Code Generator">
-      <div className="flex flex-col items-center gap-6 py-2">
+      <div className="flex flex-col items-center gap-4 sm:gap-6 py-1 sm:py-2">
         <div
           ref={qrRef}
-          className="p-5 bg-white rounded-2xl shadow-card flex items-center justify-center border border-slate-200"
+          className="p-3.5 sm:p-5 bg-white rounded-2xl shadow-card flex items-center justify-center border border-slate-200"
         >
           <QRCodeCanvas
             value={shortUrl}
-            size={200}
+            size={180}
             bgColor="#FFFFFF"
             fgColor="#0F172A"
             level="H"
@@ -55,24 +55,24 @@ export const QRModal: React.FC<QRModalProps> = ({
           />
         </div>
 
-        <div className="text-center space-y-1">
-          <h4 className="font-semibold text-slate-900 text-base">{title}</h4>
-          <p className="text-xs text-brand-700 font-mono select-all flex items-center justify-center gap-1.5">
-            {shortUrl}
+        <div className="text-center space-y-1 w-full px-2">
+          <h4 className="font-semibold text-slate-900 text-sm sm:text-base truncate max-w-full">{title}</h4>
+          <p className="text-xs text-brand-700 font-mono select-all flex items-center justify-center gap-1.5 truncate max-w-full">
+            <span className="truncate">{shortUrl}</span>
             <button
               onClick={handleCopy}
               title="Copy link"
-              className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
+              className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition shrink-0"
             >
               <Copy className="w-3.5 h-3.5" />
             </button>
           </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full pt-4 border-t border-slate-200/80">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full pt-3 sm:pt-4 border-t border-slate-200/80">
           <Button
             variant="outline"
-            className="flex-1"
+            className="flex-1 w-full sm:w-auto"
             icon={<ExternalLink className="w-4 h-4" />}
             onClick={() => window.open(shortUrl, '_blank')}
           >
@@ -80,7 +80,7 @@ export const QRModal: React.FC<QRModalProps> = ({
           </Button>
           <Button
             variant="primary"
-            className="flex-1"
+            className="flex-1 w-full sm:w-auto"
             icon={<Download className="w-4 h-4" />}
             onClick={handleDownload}
           >

@@ -14,6 +14,7 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useToast } from '../components/ui/Toast';
 import { QRModal } from '../components/QRModal';
+import { CossActionInput } from '../components/coss/CossActionInput';
 import { clsx } from 'clsx';
 import {
   Link2,
@@ -214,70 +215,20 @@ export const DashboardPage: React.FC = () => {
           }
         />
 
-        {/* URL Input Card */}
-        <Card className="p-6 bg-white border border-slate-200/90 shadow-card">
-          <form onSubmit={handleCreateLink} className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <Input
-                  type="url"
-                  placeholder="Paste a long URL here (e.g. https://example.com/very-long-path)"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  leftIcon={<Link2 className="w-4 h-4 text-brand-600" />}
-                  required
-                />
-              </div>
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                className="shrink-0"
-                isLoading={createLinkMutation.isPending}
-                icon={<Sparkles className="w-4 h-4" />}
-              >
-                Shorten URL
-              </Button>
-            </div>
-
-            {/* Expandable Advanced Options Header */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-xs font-semibold text-slate-600 hover:text-brand-700 flex items-center gap-1.5 transition-colors focus:outline-none"
-              >
-                <span>{showAdvanced ? 'Hide advanced options' : '+ Custom Vanity Slug & Title'}</span>
-                <ChevronDown
-                  className={clsx('w-3.5 h-3.5 transition-transform duration-250', showAdvanced && 'rotate-180')}
-                />
-              </button>
-            </div>
-
-            {/* Expandable Panel */}
-            {showAdvanced && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100 animate-fade-in-up">
-                <Input
-                  label="Custom Vanity Slug (Optional)"
-                  placeholder="e.g. summer-sale"
-                  value={customSlug}
-                  onChange={(e) => setCustomSlug(e.target.value)}
-                  helperText="Collision-protected custom alias"
-                />
-                <Input
-                  label="Link Title (Optional)"
-                  placeholder="e.g. Q3 Marketing Campaign"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  helperText="Friendly name for identification"
-                />
-              </div>
-            )}
-          </form>
-        </Card>
+        {/* Coss UI Action Input Particle Component */}
+        <CossActionInput
+          url={url}
+          setUrl={setUrl}
+          customSlug={customSlug}
+          setCustomSlug={setCustomSlug}
+          title={title}
+          setTitle={setTitle}
+          onSubmit={handleCreateLink}
+          isLoading={createLinkMutation.isPending}
+        />
 
         {/* 4 Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {isSummaryLoading ? (
             Array.from({ length: 4 }).map((_, i) => (
               <Card key={i} className="h-28 p-4 flex flex-col justify-between">
@@ -314,10 +265,10 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Recent Short Links Section */}
-        <Card className="p-6 space-y-4">
+        <Card className="p-4 sm:p-6 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-semibold text-slate-900">Recent Short Links</h2>
+              <h2 className="text-sm sm:text-base font-semibold text-slate-900">Recent Short Links</h2>
               <button
                 type="button"
                 onClick={handleRefresh}
@@ -351,8 +302,8 @@ export const DashboardPage: React.FC = () => {
               description="Create your first shortened link using the form above to start tracking clicks."
             />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
+            <div className="overflow-x-auto -mx-1 sm:mx-0">
+              <table className="w-full text-left text-sm border-collapse min-w-[540px]">
                 <thead>
                   <tr className="border-b border-slate-200/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     <th className="py-3 px-3">Link Details</th>
@@ -372,7 +323,7 @@ export const DashboardPage: React.FC = () => {
                         key={link._id}
                         className="hover:bg-slate-50/80 transition-colors duration-150 group"
                       >
-                        <td className="py-3.5 px-3 max-w-xs sm:max-w-md">
+                        <td className="py-3.5 px-3 max-w-[200px] sm:max-w-md">
                           <div className="flex items-center gap-3">
                             <div className="w-7 h-7 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
                               {favicon ? (
@@ -456,7 +407,7 @@ export const DashboardPage: React.FC = () => {
 
         {/* 7-Day Clicks Mini Chart Card */}
         {formattedClicksOverTime.length > 0 && (
-          <Card className="p-6 space-y-3">
+          <Card className="p-4 sm:p-6 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-brand-600" />
@@ -464,9 +415,9 @@ export const DashboardPage: React.FC = () => {
               </div>
               <span className="text-xs text-slate-500 font-medium">Daily Trend</span>
             </div>
-            <div className="h-44 w-full pt-2">
+            <div className="h-40 sm:h-44 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={formattedClicksOverTime} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart data={formattedClicksOverTime} margin={{ top: 10, right: 5, left: -22, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
                   <XAxis dataKey="formattedDate" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis

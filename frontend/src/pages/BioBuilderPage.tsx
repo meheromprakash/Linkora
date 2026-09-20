@@ -204,11 +204,11 @@ export const BioBuilderPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Customizer Controls Form (Left 7 Cols) */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
               {/* Identity Settings */}
-              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+              <Card className="p-4 sm:p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <h2 className="text-sm sm:text-base font-semibold text-slate-900 flex items-center gap-2">
                     <User className="w-4 h-4 text-brand-600" />
                     <span>Profile Identity</span>
                   </h2>
@@ -258,13 +258,13 @@ export const BioBuilderPage: React.FC = () => {
               </Card>
 
               {/* Theme Swatch Cards Selector */}
-              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
-                <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+              <Card className="p-4 sm:p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+                <h2 className="text-sm sm:text-base font-semibold text-slate-900 flex items-center gap-2">
                   <Palette className="w-4 h-4 text-brand-600" />
                   <span>Theme Styling</span>
                 </h2>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {[
                     {
                       id: 'minimal-light',
@@ -292,7 +292,7 @@ export const BioBuilderPage: React.FC = () => {
                         type="button"
                         onClick={() => setTheme(t.id as any)}
                         className={clsx(
-                          'relative p-3 rounded-xl border flex flex-col items-center gap-2 text-center transition-all duration-200 overflow-hidden group focus:outline-none',
+                          'relative p-2 sm:p-3 rounded-xl border flex flex-col items-center gap-1.5 sm:gap-2 text-center transition-all duration-200 overflow-hidden group focus:outline-none',
                           t.previewBg,
                           isSelected
                             ? 'ring-2 ring-brand-600 border-brand-600 shadow-md scale-[1.02]'
@@ -300,18 +300,18 @@ export const BioBuilderPage: React.FC = () => {
                         )}
                       >
                         {isSelected && (
-                          <div className="absolute top-2 right-2 p-0.5 rounded-full bg-brand-600 text-white">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          <div className="absolute top-1.5 right-1.5 p-0.5 rounded-full bg-brand-600 text-white">
+                            <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           </div>
                         )}
                         {/* Mini Real Preview */}
                         <div className="w-full space-y-1 py-1">
-                          <div className="w-6 h-6 rounded-full bg-current opacity-40 mx-auto" />
-                          <div className={clsx('w-full h-3 rounded-md text-[9px] font-bold flex items-center justify-center border', t.pillBg)}>
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-current opacity-40 mx-auto" />
+                          <div className={clsx('w-full h-3 rounded-md text-[8px] sm:text-[9px] font-bold flex items-center justify-center border', t.pillBg)}>
                             Link
                           </div>
                         </div>
-                        <span className="text-xs font-semibold leading-none">{t.label}</span>
+                        <span className="text-[11px] sm:text-xs font-semibold leading-tight">{t.label}</span>
                       </button>
                     );
                   })}
@@ -319,9 +319,9 @@ export const BioBuilderPage: React.FC = () => {
               </Card>
 
               {/* Bio Links Manager */}
-              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+              <Card className="p-4 sm:p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                  <h2 className="text-sm sm:text-base font-semibold text-slate-900 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-brand-600" />
                     <span>Bio Links ({links.length})</span>
                   </h2>
@@ -347,7 +347,7 @@ export const BioBuilderPage: React.FC = () => {
 
                 {/* Link Input Row Cards or 0-Link Empty State */}
                 {links.length === 0 ? (
-                  <div className="p-8 text-center border-2 border-dashed border-slate-200/90 rounded-xl space-y-2 bg-slate-50/50 mt-2">
+                  <div className="p-6 sm:p-8 text-center border-2 border-dashed border-slate-200/90 rounded-xl space-y-2 bg-slate-50/50 mt-2">
                     <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
                       <Sparkles className="w-4 h-4" />
                     </div>
@@ -359,7 +359,7 @@ export const BioBuilderPage: React.FC = () => {
                     {links.map((link) => (
                       <div
                         key={link.id}
-                        className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 transition-all duration-200"
+                        className="p-3 sm:p-3.5 bg-slate-50/80 border border-slate-200 rounded-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 transition-all duration-200"
                       >
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 flex-1">
                           <Input
@@ -389,8 +389,8 @@ export const BioBuilderPage: React.FC = () => {
               </Card>
 
               {/* Social Handles */}
-              <Card className="p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
-                <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+              <Card className="p-4 sm:p-6 space-y-4 bg-white border border-slate-200/90 shadow-card">
+                <h2 className="text-sm sm:text-base font-semibold text-slate-900 flex items-center gap-2">
                   <Globe className="w-4 h-4 text-brand-600" />
                   <span>Social Handles</span>
                 </h2>
@@ -430,7 +430,7 @@ export const BioBuilderPage: React.FC = () => {
               </div>
 
               {/* Phone Bezel */}
-              <div className="w-full max-w-[340px] mx-auto h-[620px] bg-[#F1F5F9] border-4 border-slate-300 rounded-[40px] shadow-modal p-4 overflow-hidden relative flex flex-col">
+              <div className="w-full max-w-[310px] sm:max-w-[340px] mx-auto h-[530px] sm:h-[620px] bg-[#F1F5F9] border-4 border-slate-300 rounded-[36px] sm:rounded-[40px] shadow-modal p-3.5 sm:p-4 overflow-hidden relative flex flex-col">
                 {/* Phone Speaker Notch */}
                 <div className="w-24 h-4 bg-slate-300 rounded-b-xl mx-auto mb-4 shrink-0" />
 

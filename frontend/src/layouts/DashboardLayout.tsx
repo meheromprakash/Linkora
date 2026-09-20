@@ -160,7 +160,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in-up"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="relative w-[248px] max-w-[80vw] h-full bg-white shadow-modal z-10 animate-scale-in">
+          <div className="relative w-[260px] max-w-[80vw] h-full bg-white shadow-modal z-10 animate-scale-in overflow-y-auto">
             {sidebarContent}
           </div>
         </div>
@@ -168,7 +168,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
       {/* Main Content Area (Offset by 248px on desktop) */}
       <main className="flex-1 lg:pl-[248px] min-w-0 min-h-screen">
-        <div className="max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in-up" key={location.pathname}>
+        <div className="max-w-[1280px] mx-auto p-3.5 sm:p-6 lg:p-8 animate-fade-in-up" key={location.pathname}>
           {children}
         </div>
       </main>
