@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -31,16 +32,16 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in-up"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in-up"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-modal overflow-hidden p-6 text-slate-900 animate-scale-in"
+        className="relative w-full max-w-lg bg-white border border-slate-200/90 rounded-2xl shadow-modal overflow-hidden p-6 text-slate-900 animate-scale-in max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200/80">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 shrink-0">
           <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
           <button
             onClick={onClose}
@@ -50,9 +51,10 @@ export const Modal: React.FC<ModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="pt-4">{children}</div>
+        <div className="pt-4 overflow-y-auto flex-1">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
