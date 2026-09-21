@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { AnalyticsData } from '../types';
 import { Card } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { StatCard } from '../components/ui/StatCard';
+import { Button } from '../components/ui/Button';
 import { SegmentedControl } from '../components/ui/SegmentedControl';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
+import { useToast } from '../components/ui/Toast';
 import {
   BarChart,
   Bar,
@@ -21,7 +23,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import { BarChart3, MousePointerClick, Globe, Smartphone, Info } from 'lucide-react';
+import { BarChart3, MousePointerClick, Globe, Smartphone, Info, RefreshCw } from 'lucide-react';
+import { clsx } from 'clsx';
 
 const DEVICE_COLORS: Record<string, string> = {
   desktop: '#16A34A',
@@ -33,13 +36,30 @@ const DEVICE_COLORS: Record<string, string> = {
 
 export const AnalyticsPage: React.FC = () => {
   const [days, setDays] = useState<'7' | '30'>('7');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const daysNum = parseInt(days, 10);
 
-  const { data: response, isLoading } = useQuery<{ data: AnalyticsData }>({
+  const { data: response, isLoading, isFetching, refetch } = useQuery<{ data: AnalyticsData }>({
     queryKey: ['analytics', daysNum],
     queryFn: () => api.get(`/analytics/details?days=${daysNum}`),
   });
+
+  const handleRefresh = async () => {
+    if (isRefreshing || isFetching) return;
+    setIsRefreshing(true);
+    try {
+      await refetch();
+      await queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      toast('Analytics data refreshed', 'success');
+    } catch {
+      toast('Failed to refresh analytics data', 'error');
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 400);
+    }
+  };
 
   const analytics = response?.data;
   const clicksOverTime = analytics?.clicksOverTime || [];
@@ -80,19 +100,37 @@ export const AnalyticsPage: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6">
-        {/* Header with SegmentedControl */}
+        {/* Header with Refresh button & SegmentedControl */}
         <PageHeader
           title="Click Telemetry Analytics"
           subtitle="Real-time insights across time-series clicks, referral sources, and visitor device distribution."
           actions={
-            <SegmentedControl
-              options={[
-                { label: 'Last 7 Days', value: '7' },
-                { label: 'Last 30 Days', value: '30' },
-              ]}
-              value={days}
-              onChange={(val) => setDays(val)}
-            />
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing || isFetching}
+                icon={
+                  <RefreshCw
+                    className={clsx(
+                      'w-3.5 h-3.5',
+                      (isRefreshing || isFetching) && 'animate-spin text-brand-600'
+                    )}
+                  />
+                }
+              >
+                <span>{isRefreshing || isFetching ? 'Refreshing...' : 'Refresh'}</span>
+              </Button>
+              <SegmentedControl
+                options={[
+                  { label: 'Last 7 Days', value: '7' },
+                  { label: 'Last 30 Days', value: '30' },
+                ]}
+                value={days}
+                onChange={(val) => setDays(val)}
+              />
+            </div>
           }
         />
 
