@@ -41,7 +41,7 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
             <img src="/logo.svg" alt="Linkora Logo" className="w-8 h-8 transition-transform group-hover:scale-105" />
-            <span className="text-xl font-bold tracking-tight text-slate-900">
+            <span className="text-xl font-bold tracking-tight brand-text-gradient">
               Linkora
             </span>
           </Link>

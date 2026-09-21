@@ -140,7 +140,7 @@ export const PublicBioPage: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition"
         >
           <img src="/logo.svg" alt="Linkora" className="w-4 h-4" />
-          <span>Powered by <strong>Linkora</strong></span>
+          <span>Powered by <strong className="brand-text-gradient font-bold">Linkora</strong></span>
         </Link>
       </footer>
     </div>

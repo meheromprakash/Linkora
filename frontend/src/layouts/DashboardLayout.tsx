@@ -38,7 +38,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       <div className="h-16 px-5 flex items-center justify-between border-b border-slate-200/80">
         <Link to="/dashboard" className="flex items-center gap-3">
           <img src="/logo.svg" alt="Linkora Logo" className="w-7 h-7" />
-          <span className="text-xl font-bold tracking-tight text-slate-900">
+          <span className="text-xl font-bold tracking-tight brand-text-gradient">
             Linkora
           </span>
         </Link>
@@ -142,7 +142,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       <div className="lg:hidden sticky top-0 z-30 h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between">
         <Link to="/dashboard" className="flex items-center gap-2.5">
           <img src="/logo.svg" alt="Linkora Logo" className="w-7 h-7" />
-          <span className="text-lg font-bold text-slate-900">Linkora</span>
+          <span className="text-lg font-bold tracking-tight brand-text-gradient">Linkora</span>
         </Link>
         <button
           onClick={() => setMobileMenuOpen(true)}

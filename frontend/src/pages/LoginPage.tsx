@@ -52,7 +52,7 @@ export const LoginPage: React.FC = () => {
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2">
             <img src="/logo.svg" alt="Linkora" className="w-9 h-9" />
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">Linkora</span>
+            <span className="text-2xl font-bold tracking-tight brand-text-gradient">Linkora</span>
           </Link>
           <h2 className="text-xl font-semibold text-slate-900">Welcome Back</h2>
           <p className="text-xs text-slate-500">
