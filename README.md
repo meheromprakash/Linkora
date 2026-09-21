@@ -2,7 +2,13 @@
 
 > **Branded links. Smarter sharing.**
 
-Linkora is a production-ready URL shortening and link-in-bio platform designed for link management, privacy-focused click telemetry, and customizable digital identity pages. Built with modern TypeScript across the stack, Linkora combines security, responsive UI components, and real-time analytics into a web application.
+Linkora is a full-stack URL shortening and link-in-bio platform designed for link management, privacy-focused click telemetry, and customizable digital identity pages. Built with modern TypeScript across the stack, Linkora combines security, responsive UI components, and real-time analytics into a web application.
+
+![Project](https://img.shields.io/badge/Project-Technical_Assessment-1e293b?style=flat-square)
+![Type](https://img.shields.io/badge/Type-Full--Stack_Web_Application-0f172a?style=flat-square)
+![Stack](https://img.shields.io/badge/Stack-MERN_%7C_TypeScript-10b981?style=flat-square)
+![UI](https://img.shields.io/badge/UI-Coss_UI-06b6d4?style=flat-square)
+![Database](https://img.shields.io/badge/Database-MongoDB_Atlas-047857?style=flat-square)
 
 ---
 
@@ -11,13 +17,20 @@ Linkora is a production-ready URL shortening and link-in-bio platform designed f
 - **Live Application**: [https://linkora-frontend.netlify.app](https://linkora-frontend.netlify.app)
 - **Backend API**: [https://linkora-backend-av48.onrender.com](https://linkora-backend-av48.onrender.com)
 - **GitHub Repository**: [https://github.com/meheromprakash/Linkora](https://github.com/meheromprakash/Linkora)
-- **Demo Video**: [Linkora Walkthrough Video](#)
+
+---
+
+## Walkthrough
+
+**Demo Video:** [Link to be added]
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Live Demo](#live-demo)
+- [Walkthrough](#walkthrough)
 - [Assessment Requirement Coverage](#assessment-requirement-coverage)
 - [Features](#features)
   - [Authentication & Security](#authentication--security)
