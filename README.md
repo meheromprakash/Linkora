@@ -2,13 +2,23 @@
 
 > **Branded links. Smarter sharing.**
 
-Linkora is a production-grade URL shortening and link-in-bio platform designed for high-performance link management, privacy-focused click telemetry, and customizable digital identity pages. Built with modern TypeScript across the entire stack, Linkora combines speed, security, and responsive UI components into an enterprise-ready web application.
+Linkora is a production-ready URL shortening and link-in-bio platform designed for link management, privacy-focused click telemetry, and customizable digital identity pages. Built with modern TypeScript across the stack, Linkora combines security, responsive UI components, and real-time analytics into a web application.
+
+---
+
+## Live Demo
+
+- **Live Application**: [https://linkora-frontend.netlify.app](https://linkora-frontend.netlify.app)
+- **Backend API**: [https://linkora-backend-av48.onrender.com](https://linkora-backend-av48.onrender.com)
+- **GitHub Repository**: [https://github.com/meheromprakash/Linkora](https://github.com/meheromprakash/Linkora)
+- **Demo Video**: [Linkora Walkthrough Video](#)
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Assessment Requirement Coverage](#assessment-requirement-coverage)
 - [Features](#features)
   - [Authentication & Security](#authentication--security)
   - [Short Links](#short-links)
@@ -26,6 +36,7 @@ Linkora is a production-grade URL shortening and link-in-bio platform designed f
 - [Environment Variables](#environment-variables)
 - [Local Development & Setup](#local-development--setup)
 - [Deployment Configuration](#deployment-configuration)
+- [Known Limitations](#known-limitations)
 
 ---
 
@@ -35,9 +46,9 @@ Linkora is a production-grade URL shortening and link-in-bio platform designed f
 Standard URL shorteners often lack privacy-friendly click telemetry, custom domain branding, and integrated link-in-bio features. Existing tools either expose raw visitor IP addresses, rely on heavyweight external trackers, or split link management and digital identity pages into disconnected applications.
 
 ### Solution & Core Capabilities
-Linkora solves these problems by providing a unified, self-contained platform:
-- **High-Performance Redirect Engine**: Serves instant HTTP 302 redirects with non-blocking, asynchronous telemetry logging.
-- **Privacy-First Click Telemetry**: Hashes client IP addresses using HMAC-SHA256 with a dedicated salt before storing telemetry data, guaranteeing GDPR/privacy compliance.
+Linkora solves these problems by providing a unified platform:
+- **Indexed Short-Link Redirects & Click Telemetry**: Serves HTTP 302 redirects with non-blocking, asynchronous telemetry logging.
+- **Privacy-First Click Telemetry**: Privacy-preserving IP hashing using HMAC-SHA256 with a configurable salt before storing click records.
 - **Custom Vanity Slugs & QR Codes**: Supports collision-protected custom link aliases and on-the-fly QR code generation with instant PNG downloads.
 - **Integrated Bio-Link Hub**: Generates customizable `/bio/:username` landing pages with real-time smartphone layout previews and theme customization.
 
@@ -50,14 +61,35 @@ Linkora solves these problems by providing a unified, self-contained platform:
 
 ---
 
+## Assessment Requirement Coverage
+
+| Requirement | Implementation |
+|---|---|
+| JWT Authentication | Implemented |
+| Refresh Tokens | Implemented |
+| Email Verification Simulation | Implemented |
+| Short Links | Implemented |
+| Custom Vanity Slugs | Implemented |
+| 302 Redirect | Implemented |
+| Click Telemetry | Implemented |
+| Analytics | Implemented |
+| Coss UI | Implemented |
+| QR Code Generator | Implemented |
+| Bio-Link | Implemented |
+| Theme Switcher | Implemented |
+| Mobile Responsive Bio Page | Implemented |
+| Rate Limiting | Implemented |
+
+---
+
 ## Features
 
 ### Authentication & Security
 - **Registration**: Account creation with Zod schema validation and duplicate email checks.
-- **Simulated Email Verification**: Email verification token generation (`isVerified` flag) with a simulated verification action for technical assessment workflows.
-- **Login & JWT Architecture**: Dual-token authentication using short-lived Access Tokens (15-minute expiry, transmitted via HTTP `Authorization: Bearer <token>` headers) and long-lived Refresh Tokens (7-day expiry).
-- **httpOnly Refresh Cookies**: Refresh tokens are issued inside secure, `httpOnly`, `sameSite: 'lax'` cookies and stored as SHA-256 hashes in MongoDB for token revocation capability.
-- **Password Reset**: Token-based password reset workflow with simulated token return in API responses for evaluation convenience.
+- **Simulated Email Verification**: Email verification token generation (`isVerified` flag) with a simulated verification endpoint for assessment workflows.
+- **Login & JWT Architecture**: Dual-token authentication using short-lived Access Tokens (15-minute expiry, transmitted via `Authorization: Bearer <token>` headers) and long-lived Refresh Tokens (7-day expiry).
+- **Token Storage**: Access tokens are maintained in application memory and synchronized with `localStorage` for session persistence across browser reloads. Refresh tokens are issued inside secure, `httpOnly`, `sameSite: 'lax'` cookies and stored as SHA-256 hashes in MongoDB for revocation capability.
+- **Password Reset**: Token-based password reset workflow with simulated reset token return in API responses for evaluation convenience.
 - **Protected Routes**: Express middleware (`authMiddleware`) validating Bearer JWTs on restricted endpoints.
 - **Rate Limiting**: Tiered endpoint protection using `express-rate-limit`:
   - **Auth Rate Limiter**: 15 requests / 15 minutes (`/api/v1/auth/*`).
@@ -70,7 +102,7 @@ Linkora solves these problems by providing a unified, self-contained platform:
 - **Custom Vanity Slugs**: User-defined custom aliases (e.g., `/r/summer-sale`) with case-insensitive collision protection.
 - **Duplicate Slug Detection**: Returns HTTP 409 Conflict if a custom slug is already registered.
 - **URL Validation**: Strict URL format parsing via Zod schemas before database insertion.
-- **HTTP 302 Redirects**: Ultra-fast HTTP 302 redirection (`res.redirect(302, link.originalUrl)`) with styled 404 HTML fallback pages for inactive or invalid codes.
+- **HTTP 302 Redirects**: HTTP 302 redirection (`res.redirect(302, link.originalUrl)`) with styled 404 HTML fallback pages for inactive or invalid codes.
 - **Click Telemetry Trigger**: Non-blocking `setImmediate` execution for logging click events without adding latency to visitor redirects.
 - **Clipboard Functionality**: Automatic clipboard copy on link creation and manual copy buttons with success toast notifications.
 
@@ -80,7 +112,7 @@ Every short link click records structured telemetry without blocking the HTTP re
 - **Referrer Domain**: Normalized referrer hostname (e.g., `github.com`, `twitter.com`) or `Direct / None`.
 - **Device Type**: Parsed via `ua-parser-js` into `desktop`, `mobile`, `tablet`, `bot`, or `unknown`.
 - **Browser & OS**: User agent breakdown for browser and operating system analytics.
-- **IP Hashing**: Cryptographic `HMAC-SHA256` IP hashing using a configurable `IP_SALT`. Raw IP addresses are never stored in the database.
+- **IP Hashing**: Privacy-preserving IP hashing using HMAC-SHA256 with a configurable `IP_SALT`. Raw IP addresses are never stored in the database.
 - **Click Counts**: Atomic `$inc` updates on the `ShortLink` model and `$set` updates for `lastClickedAt`.
 
 #### Implemented Analytics Aggregations:
@@ -167,7 +199,7 @@ sequenceDiagram
     API->>API: Generate Access Token (15m) & Refresh Token (7d)
     API->>DB: Store SHA-256 Hashed Refresh Token
     API-->>Client: Return Access Token (JSON) + httpOnly Refresh Cookie
-    Note over Client: Access Token stored in Memory (localStorage sync)
+    Note over Client: Access Token in Memory (localStorage sync)
 
     Client->>API: GET /api/v1/links (Header: Bearer <AccessToken>)
     API->>API: Verify Access Token Signature
@@ -205,7 +237,7 @@ sequenceDiagram
 
 ## Tech Stack
 
-### Frontend (d:\Linkora\frontend)
+### Frontend
 | Dependency | Version | Purpose |
 | :--- | :--- | :--- |
 | **React** | `18.2.0` | UI Library |
@@ -222,7 +254,7 @@ sequenceDiagram
 | **Zod** | `3.22.4` | Form Schema Validation |
 | **Clsx & Tailwind Merge** | `2.1.0` / `2.2.2` | Dynamic Class Composition |
 
-### Backend (d:\Linkora\backend)
+### Backend
 | Dependency | Version | Purpose |
 | :--- | :--- | :--- |
 | **Node.js** | `>=18` | JavaScript Runtime |
@@ -350,12 +382,12 @@ Validated at startup via Zod in `backend/src/config/env.ts`:
 ```env
 PORT=5000
 NODE_ENV=development
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/linkora?retryWrites=true&w=majority
-JWT_ACCESS_SECRET=your_super_secret_jwt_access_key_at_least_16_chars
-JWT_REFRESH_SECRET=your_super_secret_jwt_refresh_key_at_least_16_chars
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster>/<database>
+JWT_ACCESS_SECRET=replace_with_a_secure_random_secret
+JWT_REFRESH_SECRET=replace_with_a_secure_random_secret
 CLIENT_URL=http://localhost:5173
 BASE_URL=http://localhost:5000
-IP_SALT=linkora_privacy_salt_key
+IP_SALT=replace_with_a_secure_random_salt
 ```
 
 ### Frontend Configuration (`frontend/.env`)
@@ -390,11 +422,11 @@ Create `backend/.env` file:
 PORT=5000
 NODE_ENV=development
 MONGO_URI=mongodb://localhost:27017/linkora
-JWT_ACCESS_SECRET=linkora_access_secret_token_123456
-JWT_REFRESH_SECRET=linkora_refresh_secret_token_123456
+JWT_ACCESS_SECRET=replace_with_a_secure_random_secret
+JWT_REFRESH_SECRET=replace_with_a_secure_random_secret
 CLIENT_URL=http://localhost:5173
 BASE_URL=http://localhost:5000
-IP_SALT=linkora_telemetry_salt
+IP_SALT=replace_with_a_secure_random_salt
 ```
 
 Build & Start Dev Server:
@@ -433,15 +465,17 @@ npm run dev
 
 Linkora is configured for production deployment across Render (Backend) and Netlify (Frontend):
 
-### Backend Deployment (Render / Railway / Docker)
+### Backend Deployment (Render)
+- **Production API URL**: `https://linkora-backend-av48.onrender.com`
 - **Build Command**: `npm run build` (`tsc`)
 - **Start Command**: `npm start` (`node dist/server.js`)
 - **Environment Variables**: Configure `MONGO_URI`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_URL`, `BASE_URL`, and `IP_SALT`.
 
 ### Frontend Deployment (Netlify)
+- **Production Web Application**: `https://linkora-frontend.netlify.app`
 - **Build Command**: `npm run build` (`tsc && vite build`)
 - **Publish Directory**: `dist`
-- **Proxy Configuration** (`netlify.toml`): Configured single-origin proxy redirects for API routes and public short links (`/r/:shortCode`), eliminating CORS issues and supporting clean short link paths.
+- **Proxy Configuration** (`netlify.toml`): Single-origin proxy redirects for API routes and public short links (`/r/:shortCode`), eliminating CORS issues and supporting clean short link paths.
 
 ```toml
 [build]
@@ -450,13 +484,13 @@ Linkora is configured for production deployment across Render (Backend) and Netl
 
 [[redirects]]
   from = "/api/*"
-  to = "https://your-backend-api.onrender.com/api/:splat"
+  to = "https://linkora-backend-av48.onrender.com/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
   from = "/r/*"
-  to = "https://your-backend-api.onrender.com/r/:splat"
+  to = "https://linkora-backend-av48.onrender.com/r/:splat"
   status = 200
   force = true
 
@@ -465,3 +499,9 @@ Linkora is configured for production deployment across Render (Backend) and Netl
   to = "/index.html"
   status = 200
 ```
+
+---
+
+## Known Limitations
+
+- **Email Verification Delivery**: Email verification token delivery is simulated for the assessment rather than sent through a real email service provider.
